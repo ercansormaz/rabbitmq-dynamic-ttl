@@ -16,14 +16,20 @@ after the delay expires.
 
 By default, RabbitMQ supports message delaying using **queue-level TTL**. However:
 
-- Changing the TTL requires creating a new queue with updated arguments.
-This is not flexible for runtime scenarios where each message may require a different delay.
+- Changing the TTL usually requires creating a new queue with updated arguments.
+- This is not flexible for runtime scenarios where the required delay may vary over time.
 
-This project solves the problem by:
+This project demonstrates an alternative approach by:
 
-- Using **per-message TTL** (expiration property).
+- Using **per-message TTL** (expiration property) to define delays dynamically.
 - Routing expired messages via a **dead-letter routing** into the final processing queue.
-- Allowing **runtime delay definition** without creating new queues.
+- Allowing delay adjustments at runtime without creating new queues or relying on external plugins.
+
+> ⚠️ Note: While it is technically possible to assign a TTL for each individual message, under heavy
+> load this may introduce challenges due to RabbitMQ’s **FIFO queue behavior**. For example, a message
+> with a longer TTL can block subsequent messages with shorter TTLs. In large-scale systems, it is
+> often more practical to use a limited set of delay “buckets” (e.g., 5s, 30s, 60s) rather than fully
+> arbitrary per-message delays.
 
 ---
 
